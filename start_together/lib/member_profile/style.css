@@ -1,0 +1,43 @@
+span {
+    font-size: 17px;
+}
+
+hr {
+    border-width: 20px;
+    border-color: #262e41;
+    border-radius: 10px;
+}
+
+#name, #responseName, 
+#birthDay, #responseBirthDay,
+#email, #responseEmail,
+#username, #responseUsername,
+#password, #responsePassword {
+    font-size: 19px;
+}
+
+#name, #birthDay, #email, #username, #password{
+    color: black;
+}
+
+#responseName, 
+#responseBirthDay,
+#responseEmail,
+#responseUsername,
+#responsePassword {
+    font-style: italic;
+}
+
+#btnEdit {
+    width: 150px;
+}
+
+#labelProfile {
+    margin-top: 40px;
+    font-size: 36px;
+}
+
+#btn-save {
+    width: 200px;
+    height: 45px;
+}
