@@ -98,6 +98,7 @@
                             <option value="ทั้งหมด">ทั้งหมด</option>
                             <option value="การเกษตร">การเกษตร</option>
                             <option value="เทคโนโลยี">เทคโนโลยี</option>
+                            <option value="สังคม">สังคม</option>
                             <option value="สัตว์">สัตว์</option>                 
                         </select>
                     </div>

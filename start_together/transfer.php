@@ -31,10 +31,8 @@
 	    )
 	));
 
-	$query = "UPDATE projects SET proj_status = 'non-active' WHERE proj_id = '$proj_id'";
+	$query = "UPDATE request_money SET rm_status = 'โอนจ่ายเรียบร้อยแล้ว' WHERE proj_repacc = '$rep_acc'";
 
 	mysqli_query($connect, $query);
 
-
-	print_r($transfer);
 ?>

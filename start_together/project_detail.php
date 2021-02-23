@@ -234,6 +234,41 @@
 
     <script type="text/javascript">
 
+        $.ajax({
+            url: 'get_data_all_project.php',
+            contentType: 'application/json',
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            success: function (response) {
+
+                for(i=0; i<response.length; i++) {
+                    if($("#proj_id").val() == response[i].proj_id && response[i].proj_status == "non-active") {
+                        
+                       $("#btnDonate").attr("disabled", "true")
+                       $("#btnDonate").html('<i style="font-size: 25px;" class="fas fa-close"></i>\xa0\xa0 ปิดการโดเนทแล้ว')
+                    }
+                }
+                console.log(response)
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+        $.ajax({
+            url:'countBacker.php',
+            type:"POST",
+            data:{
+                proj_id : $("#proj_id").val(),
+            },
+            success:function(countdata){
+                $("#bracker").html("BRACKER : " + countdata);
+                console.log(countdata);
+            },
+            error:function(error){
+                                                    
+            }
+        });
+
         OmiseCard.configure({
             publicKey: "pkey_test_5mxfwdyztyqm17dzf9q"
         });
@@ -256,7 +291,7 @@
             var lastname = "";
 
             $.ajax({
-                url: 'get_data_project.php',
+                url: 'get_data_all_project.php',
                 contentType: 'application/json',
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 success: function (response) {
@@ -284,7 +319,6 @@
 
                                             $("#card-title").html("<i id='iconTitle' class='fas fa-thumbtack'></i>\xa0\xa0\xa0\xa0<b id='textTitle'>" + title + "</b>")
                                             $("#card-description").html("<p>เจ้าของโปรเจค\xa0:\xa0" + firstname + "\xa0\xa0" + lastname + "</p>" + desc)
-                                            $("#bracker").html("BRACKER : " + bracker)
                                             $("#money").html("MONEY : " + money)
                                             $("#goal").html("GOAL : " + goal)
                                         }
@@ -379,7 +413,16 @@
                             timer: 5000
                         })
                     }
-                    else 
+                    else if($("#inputMoney").val() < 50) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ไม่สามารถดำเนินการได้',
+                            text: 'จำนวนเงินขั้นต่ำในการสนับสนุนคือ 50 บาท',
+                            width: 600,
+                            timer: 5000
+                        })
+                    }
+                    else
 
                     OmiseCard.open({
                       amount: $('#inputMoney').val()*100,
@@ -406,17 +449,43 @@
                                        omiseSource : $("#omiseSource").val(),
                                        btnMoney : $("#inputMoney").val(),
                                     },
-                                success: function(response) {
-                                    console.log(response);
-                                    $("#modalAddMoney").modal('hide');
-                                    
-                                    var x = $("#inputMoney").val()
-                                    var y = x * 3.65 / 100
-                                    var z = (x * 3.65 / 100) * 7 / 100
-                                    var ans = x - (y + z) + money4update
+                                    success: function(response) {
+                                        console.log(response);
+                                        $("#modalAddMoney").modal('hide');
+                                        
+                                        var x = $("#inputMoney").val()
+                                        var y = x * 3.65 / 100
+                                        var z = (x * 3.65 / 100) * 7 / 100
+                                        var ans = x - (y + z) + money4update
+
+                                        const date = new Date();
+
+                                        const currentDate = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + "\xa0\xa0" + 
+                                                            date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
 
                                     $.ajax({
-                                        url:'updateMoney.php',
+                                        url: 'insert_donate_history.php',
+                                        type: "POST",
+                                        data: {
+                                            u_id : sessionStorage.getItem("u_id"),
+                                            u_firstname : sessionStorage.getItem("u_firstname"),
+                                            u_lastname : sessionStorage.getItem("u_lastname"),
+                                            proj_id : $("#proj_id").val(),
+                                            dh_money : ans.toFixed(2),
+                                            dh_datetime : currentDate,
+                                        },
+                                        success: function(data) {
+                                            console.log(data);
+                                        },
+                                        error: function (error) {
+                                            console.log(error);
+                                        }
+                                    });
+
+
+
+                                    $.ajax({
+                                        url: 'updateMoney.php',
                                         type: "POST",
                                         data:{
                                             amount : ans.toFixed(2),
@@ -432,6 +501,20 @@
                                                 timer: 5000
                                             })
 
+                                            $.ajax({
+                                                url:'countBacker.php',
+                                                type:"POST",
+                                                data:{
+                                                    proj_id : $("#proj_id").val(),
+                                                },
+                                                success:function(countdata){
+                                                    $("#bracker").html("BRACKER : " + countdata);
+                                                },
+                                                error:function(error){
+                                                    
+                                                }
+                                            });
+
                                             var proj_id = $("#proj_id").val();
                                             var u_id = "";
                                             var desc = "";
@@ -443,7 +526,7 @@
                                             var lastname = "";
 
                                             $.ajax({
-                                                url: 'get_data_project.php',
+                                                url: 'get_data_all_project.php',
                                                 contentType: 'application/json',
                                                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                                                 success: function (response) {
@@ -470,7 +553,6 @@
                                                                             lastname = response[i].u_lastname
                                                                             $("#card-title").html("<i id='iconTitle' class='fas fa-thumbtack'></i>\xa0\xa0\xa0\xa0<b id='textTitle'>" + title + "</b>")
                                                                             $("#card-description").html("<p>เจ้าของโปรเจค\xa0:\xa0" + firstname + "\xa0\xa0" + lastname + "</p>" + desc)
-                                                                            $("#bracker").html("BRACKER : " + bracker)
                                                                             $("#money").html("MONEY : " + money)
                                                                             $("#goal").html("GOAL : " + goal)
                                                                         }

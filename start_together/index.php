@@ -107,7 +107,7 @@
 		                            <div class="col-md-12">
 		                                <div class="slide_text">
 			                             	<h6 style="font-size: 40px;"></h6>
-			                                <h3 style="font-size: 80px;">ไฟจราจรอัจริยะ</h3>
+			                                <h3 style="font-size: 80px;">ไฟจราจรอัจฉริยะ</h3>
 			                                <h4>Smart traffic light</h4>
 			                                <br>
 			                                <a class="readmore_bt" href="project_detail.php?proj_id=1">Read More</a>

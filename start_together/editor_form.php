@@ -122,7 +122,7 @@
     						<td>
     							<div class="form-group" style="margin-left: 10px;">
 								    <label id="accountLabel" style="margin-left: 2px;">เลขที่บัญชีรับเงิน</label>
-								    <input type="number" class="form-control" id="inputAccount" placeholder="เลขที่บัญชี" minlength="10" maxlength="10">
+								    <input type="number" class="form-control" id="inputAccount" placeholder="เลขที่บัญชี" pattern="\d*" maxlength="4">
 								</div>
     						</td>
     					</tr>
@@ -264,7 +264,8 @@
 		            })
           			
           		} else {
-          			Swal.fire({
+          			if($("#inputAccount").val().length == 10) {
+          				Swal.fire({
 		               	title: 'Are you sure ?',
 		               	text: 'คุณต้องการสร้างโปรเจค ?',
 		               	icon: 'question',
@@ -272,33 +273,44 @@
 		               	confirmButtonColor: '#3085d6',
 		               	cancelButtonColor: '#d33',
 		               	confirmButtonText: 'Comfirm',
-		           	}).then((result) => {
-			           	if (result.isConfirmed) {
-			           		$.ajax({
-		                        url: "insert_project.php",
-		                        type: 'POST',
-		                        data: {
-		                            u_id : sessionStorage.getItem("u_id"),
-		                            u_firstname : sessionStorage.getItem("u_firstname"),
-		                            u_lastname : sessionStorage.getItem("u_lastname"),
-		                            u_email : sessionStorage.getItem("u_email"),
-		                            proj_desc : CKEDITOR.instances.Artticle_editor.getData(),
-		                            proj_goal : $("#inputGoal").val(),
-		                            proj_title : $("#inputTitle").val(),
-		                            proj_type : $("#listType").val(),
-		                            proj_account : $("#inputAccount").val(),
-		                        },
-		                        cache: false,
-		                        success: function (data) {
+			           	}).then((result) => {
+				           	if (result.isConfirmed) {
+				           		$.ajax({
+			                        url: "insert_project.php",
+			                        type: 'POST',
+			                        data: {
+			                            u_id : sessionStorage.getItem("u_id"),
+			                            u_firstname : sessionStorage.getItem("u_firstname"),
+			                            u_lastname : sessionStorage.getItem("u_lastname"),
+			                            u_email : sessionStorage.getItem("u_email"),
+			                            proj_desc : CKEDITOR.instances.Artticle_editor.getData(),
+			                            proj_goal : $("#inputGoal").val(),
+			                            proj_title : $("#inputTitle").val(),
+			                            proj_type : $("#listType").val(),
+			                            proj_account : $("#inputAccount").val(),
+			                        },
+			                        cache: false,
+			                        success: function (data) {
 
-		                          	window.location = "project_detail.php?proj_id=" + data
-		                        },
-		                        error: function (error) {
-		                          	console.log("error is " + error);
-		                        }
-		                    });
-		              	}
-		        	})
+			                          	window.location = "project_detail.php?proj_id=" + data
+			                        },
+			                        error: function (error) {
+			                          	console.log("error is " + error);
+			                        }
+			                    });
+			              	}
+			        	})
+          			}
+          			else {
+          				Swal.fire({
+		                icon: 'error',
+		                title: 'ดำเนินการไม่สำเร็จ',
+		                text: 'รูปแบบเลขที่บัญชีรับเงินไม่ถูกต้อง',
+		                width: 700,
+		                timer: 5000
+		            })
+          			}
+          			
           		}
           	});
 

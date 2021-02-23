@@ -116,7 +116,7 @@
                     <tr>
                         <td colspan="2">
                             <br>
-                            <h2 style="margin-left: 20px;"><b>Member</b>&nbsp;&nbsp;<i class="fas fa-users"></i></h2>
+                            <h2 style="margin-left: 20px;"><b>Donate History</b>&nbsp;&nbsp;<i class="fa fa-donate"></i></h2>
                             <hr id="title_line" style="margin-top: 30px;" />
                         </td>
                     </tr>
@@ -127,26 +127,23 @@
 								  id="table"
 								  data-toggle="table"
 								  data-toolbar="#toolbar"
+                                  data-show-export="true"
 	                              data-search="true"
-	                              data-show-export="true"
+	                              data-card-view="true"
 	                              data-show-columns-toggle-all="true"
 	                              data-show-columns="true"
-	                              data-show-toggle="true"
 	                              data-page-list="[5, 10, 20, 100]"
 	                              data-pagination="true"
 	                              data-pagination-pre-text="Previous"
 	                              data-pagination-next-text="Next"
 	                              data-page-size="5"
-								  data-url="get_data_member.php">
+								  data-url="get_data_donate_history.php">
 							  <thead class="thead-dark">
 							    <tr>
-							      <th data-width="100" data-field="u_id" data-sortable="true">#</th>
-							      <th data-width="200" data-field="u_firstname" data-sortable="true">Firstname</th>
-							      <th data-width="200" data-field="u_lastname" data-sortable="true">Lastname</th>
-							      <th data-width="150" data-field="u_birthday" data-sortable="true">Birthday</th>
-							      <th data-width="300" data-field="u_email" data-sortable="true">Email</th>
-							      <th data-width="200" data-field="u_username" data-sortable="true">Username</th>
-							      <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents">Action</th>
+							        <th data-field="u_firstname" data-formatter="nameFormatter" data-sortable="true">ผู้โดเนท</th>
+                                    <th data-field="proj_title" data-sortable="true">โดเนทให้โปรเจค</th>
+                                    <th data-field="dh_money" data-sortable="true">จำนวนเงิน (หลังหักภาษี)</th>
+                                    <th data-field="dh_datetime" data-sortable="true">วัน - เวลาที่โดเนท</th>
 							    </tr>
 							  </thead>
 							</table>
@@ -254,41 +251,29 @@
 
     	var $table = $("#table");
 
-    	function operateFormatter(value, row, index) {
-          return [ 
-               '<a class="edit" href="javascript:void(0)" title="Edit"><i style="font-size: 22px; color: #ffc107;" class="fas fa-edit"></i></a>' + '\xa0\xa0\xa0\xa0\xa0',
-               '<a class="remove" href="javascript:void(0)" title="Remove"><i style="font-size: 25px; color: #dc3545;" class="fas fa-trash"></i></a>'
-            ].join('')
+    	function nameFormatter(value, row, index) {
+            
+            return value + " " + row.u_lastname;
         }
 
-       window.operateEvents = {
-       		'click .edit': function (e, value, row, index) {
-       			$("#modalMemberEdit").modal('show');
-       			$("#inputID").val(row.u_id);
-       			$("#inputFirstName").val(row.u_firstname);
-       			$("#inputLastName").val(row.u_lastname);
-       			$("#inputEmail").val(row.u_email);
-       			$("#inputBirthDay").val(row.u_birthday);
-       			$("#inputUsername").val(row.u_username);
-       			$("#inputPassword").val(row.u_password);
-        	},
+        window.operateEvents = {
 
             'click .remove': function (e, value, row, index) {
 
-                Swal.fire({
+               Swal.fire({
 	               title: 'Are you sure ?',
-	               text: 'คุณต้องการลบข้อมูลสมาชิกท่านนี้ ใช่หรือไม่ ?',
+	               text: 'คุณต้องการลบข้อมูลโปรเจคนี้ ใช่หรือไม่ ?',
 	               icon: 'warning',
 	               showCancelButton: true,
 	               confirmButtonColor: '#3085d6',
 	               cancelButtonColor: '#d33',
 	               confirmButtonText: 'Comfirm',
-	            }).then((result) => {
+	           }).then((result) => {
 		           	if (result.isConfirmed) {
 	                    $.ajax({
-							url: "delete_member.php",
+							url: "delete_projects.php",
 							type: 'GET',
-							data: {u_id : row.u_id},
+							data: {proj_id : row.proj_id},
 							cache: false,
 							success: function (data) {
 								Swal.fire({
@@ -297,7 +282,7 @@
 								    text: 'ลบข้อมูลสำเร็จแล้ว',
 								    timer: 5000
 								})
-								$table.bootstrapTable('refreshOptions', {url: 'get_data_member.php'})
+								$table.bootstrapTable('refreshOptions', {url: 'http://localhost:3000/projects'})
 							},
 							error: function (error) {
 								console.log("error is " + error);
@@ -308,15 +293,6 @@
         	}
     	}
 
-    	function checkForm(){
-	        if($("#inputFirstName").val().length > 0 && $("#inputLastName").val().length > 0 && $("#inputEmail").val().length > 0 &&
-	        	$("#inputBirthDay").val().length > 0 && $("#inputUsername").val().length > 0 && $("#inputPassword").val().length > 0){
-	          	$("#btn-save").attr("disabled", false);
-	        }
-	        else {
-	          	$("#btn-save").attr("disabled", true);
-	        }
-	    }
 
 	    $(document).ready(function () {
 
@@ -326,82 +302,6 @@
 
 		    $("#show-sidebar").click(function () {
 		        $(".page-wrapper").addClass("toggled");
-		    });
-
-		    $("#modalMemberEditClose").click(function () {
-	        	$("#modalMemberEdit").modal('hide');
-	        });
-
-		    $("#btn-save").click(function () {
-		    	if($("#inputFirstName").val() == "" || $("#inputLastName").val() == "" || $("#inputEmail").val() == "" ||
-		            $("#inputBirthDay").val() == "" || $("#inputUsername").val() == "" || $("#inputPassword").val() == "") {
-
-		        	Swal.fire({
-		                icon: 'error',
-		                title: 'ไม่สามารถลงทะเบียนได้',
-		                text: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-		                timer: 5000
-		            })
-		        }
-		        else {
-		        	var id = $("#inputID").val();
-		        	var firstname = $("#inputFirstName").val();
-		            var lastname = $("#inputLastName").val();
-		            var birthday = $("#inputBirthDay").val();
-		            var email = $("#inputEmail").val();
-		            var username = $("#inputUsername").val();
-		            var password = $("#inputPassword").val();
-		            var role = "member";
-
-		            Swal.fire({
-		               title: 'Are you sure ?',
-		               text: 'คุณต้องกาแก้ไขข้อมูลสมาชิกท่านนี้ ใช่หรือไม่ ?',
-		               icon: 'warning',
-		               showCancelButton: true,
-		               confirmButtonColor: '#3085d6',
-		               cancelButtonColor: '#d33',
-		               confirmButtonText: 'Comfirm',
-		           	}).then((result) => {
-			           	if (result.isConfirmed) {
-		                    $.ajax({
-								url: "update_member.php",
-								type: 'POST',
-								data: {
-									u_id : id,
-									u_firstname : firstname,
-		                            u_lastname : lastname,
-		                            u_birthday : birthday,
-		                            u_email : email,
-		                            u_username : username,
-		                            u_password : password,
-		                            u_role : role
-								},
-								cache: false,
-								success: function (data) {
-									$("#modalMemberEdit").modal('hide');
-			                        $("#inputFirstName").val("");
-			                        $("#inputLastName").val("");
-			                        $("#inputBirthDay").val("");
-			                        $("#inputEmail").val("");
-			                        $("#inputUsername").val("");
-			                        $("#inputPassword").val("");
-			                        $("#btn-save").attr("disabled", false);
-
-									Swal.fire({
-										icon: 'success',
-										title: 'Success !',
-										text: 'แก้ไขข้อมูลสำเร็จแล้ว',
-										timer: 5000
-									})
-									$table.bootstrapTable('refreshOptions', {url: 'get_data_member.php'})
-								},
-								error: function (error) {
-									console.log("error is " + error);
-								}
-							});
-		                }
-		        	})
-		        }
 		    });
 
 		    $("#btn-logout").click(function () {

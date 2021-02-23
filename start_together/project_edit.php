@@ -51,7 +51,7 @@
             -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
 
-        #btnEditProject, #btnEndProject {
+        #btnEditProject, #btnEndProject, #btnBrackerList{
             width: 200px;
             height: 50px;
         }
@@ -135,27 +135,31 @@
                         <table>
                             <tr>
                                 <td>
-                                    <div class="card" style="width: 170px; margin-right: 10px;">
-                                        <div align="center" id="goal" class="card-body">;
-                                            GOAL
+                                    <a>
+                                        <div class="card" style="width: 170px; margin-right: 10px;">
+                                            <div align="center" id="goal" class="card-body">;
+                                                <div style='color : black;'>GOAL</div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </a>
                                 </td>
                                 <td>
-                                    <div align="center" class="card" style="width: 170px; margin-right: 10px;">
-                                        <div id="money" class="card-body">
-                                             MONEY
-                                        </div>
-                                    </div>     
-                                </td>
-                                <td>
-                                    <div align="center" class="card" style="width: 170px; margin-right: 10px;">
-                                        <div id="bracker" class="card-body">
-                                             BRACKER
-                                        </div>
-                                    </div>
+                                    <a>
+                                        <div align="center" class="card" style="width: 170px; margin-right: 10px;">
+                                            <div id="money" class="card-body">
+                                                 <div style='color : black;'>MONEY</div>
+                                            </div>
+                                        </div> 
+                                    </a>    
                                 </td>
                                 <td width="500" align="right">
+                                    <button style="margin-right: 10px;" id="btnBrackerList" type="button" class="btn btn-dark">
+                                        <i style="font-size: 25px;" class="fas fa-users"></i>
+                                        &nbsp;&nbsp;ผู้สนับสนุน
+                                    </button>
+
+                                </td>
+                                <td align="right">
                                     <button style="margin-right: 10px;" id="btnEditProject" type="button" class="btn btn-warning">
                                         <i style="font-size: 25px;" class="fas fa-edit"></i>
                                         &nbsp;&nbsp;แก้ไขโปรเจค
@@ -163,11 +167,10 @@
 
                                 </td>
                                 <td align="right">
-                                    <button id="btnEndProject" type="button" class="btn btn-info">
+                                    <button style="margin-right: 10px;" id="btnEndProject" type="button" class="btn btn-info">
                                         <i style="font-size: 25px;" class="fas fa-dollar-sign"></i>
                                         &nbsp;&nbsp;ขอรับเงินโดเนท
-                                    </button>
-                                    
+                                    </button>  
                                 </td>
                             </tr>
                         </table>
@@ -177,6 +180,42 @@
     		</td>
     	</tr>
     </table>
+
+    <div class="modal fade" id="modalBrackerList" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 style="color: black; font-size: 18px;" class="modal-title" id="exampleModalLabel">ผู้สนับสนุน</h5>
+                    <button type="button" class="close" id="modalBrackerListClose" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table
+                        id="table"
+                        data-toggle="table"
+                        data-toolbar="#toolbar"
+                        data-show-export="true"
+                        data-show-refresh="true"
+                        data-search="true"
+                        data-card-view="true"
+                        data-page-list="[5, 10, 20, 100]"
+                        data-pagination="true"
+                        data-pagination-pre-text="Previous"
+                        data-pagination-next-text="Next"
+                        data-page-size="5"
+                        data-url="get_data_bracker.php">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th data-field="u_firstname" data-sortable="true">ชื่อผู้สนับสนุน</th>
+                                <th data-field="SUMdh" data-sortable="true">ยอดโดเนท</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-------------------------------------------------------------------------------------------------------------------------------------->
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -206,6 +245,49 @@
 
     <script type="text/javascript">
 
+        var $table = $("#table");
+
+        $.ajax({
+            url: 'get_data_request_money.php',
+            contentType: 'application/json',
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            success: function (response) {
+
+                for(i=0; i<response.length; i++) {
+                    if($("#proj_id").val() == response[i].proj_id && response[i].rm_status == "โอนจ่ายเรียบร้อยแล้ว") {
+
+                        $("#btnEndProject").html('<i style="font-size: 25px;" class="fas fa-check"></i>\xa0\xa0 โอนจ่ายเรียบร้อยแล้ว')
+                        $("#btnEndProject").attr("disabled", "true")
+                    }
+                    else if($("#proj_id").val() == response[i].proj_id && response[i].rm_status == "รอการโอนจ่าย") {
+
+                        $("#btnEndProject").html('<i style="font-size: 25px;" class="fas fa-clock"></i>\xa0\xa0 รอการโอนจ่าย....')
+                        $("#btnEndProject").attr("disabled", "true")
+                    }
+
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+        $.ajax({
+            url:'countBacker.php',
+            type:"POST",
+            data:{
+                proj_id : $("#proj_id").val(),
+            },
+            success:function(countdata){
+                $("#bracker").html("BRACKER : " + countdata);
+                console.log(countdata);
+            },
+            error:function(error){
+                                                    
+            }
+        });
+
+
         OmiseCard.configure({
             publicKey: "pkey_test_5mxfwdyztyqm17dzf9q"
         });
@@ -215,6 +297,8 @@
 
 
         $(document).ready(function() {
+
+            $table.bootstrapTable('refreshOptions', {url: 'get_data_bracker.php?proj_id=' + $("#proj_id").val()})
 
             var money4update = 0;
             var proj_id = $("#proj_id").val();
@@ -228,7 +312,7 @@
             var lastname = "";
 
             $.ajax({
-                url: 'get_data_project.php',
+                url: 'get_data_all_project.php',
                 contentType: 'application/json',
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 success: function (response) {
@@ -256,9 +340,8 @@
 
                                             $("#card-title").html("<i id='iconTitle' class='fas fa-thumbtack'></i>\xa0\xa0\xa0\xa0<b id='textTitle'>" + title + "</b>")
                                             $("#card-description").html("<p>เจ้าของโปรเจค\xa0:\xa0" + firstname + "\xa0\xa0" + lastname + "</p>" + desc)
-                                            $("#bracker").html("BRACKER : " + bracker)
-                                            $("#money").html("MONEY : " + money)
-                                            $("#goal").html("GOAL : " + goal)
+                                            $("#money").html("<div style='color : black;'>MONEY : " + money + "</div>")
+                                            $("#goal").html("<div style='color : black;'>GOAL : " + goal + "</div>")
                                         }
                                     }
                                 },
@@ -305,65 +388,86 @@
 
           	});
 
+            $("#btnBrackerList").click(function () {
+                $("#modalBrackerList").modal("show");
+            });
+
+            $("#modalBrackerListClose").click(function () {
+                $("#modalBrackerList").modal("hide");
+            });
+
             $("#btnEditProject").click(function () {
                 window.location = "editor_form_edit.php?proj_id=" + $("#proj_id").val();
             });
 
             $("#btnEndProject").click(function () {
-                Swal.fire({
-                   title: 'Are you sure ?',
-                   text: 'หากคุณขอรับเงินโดเนท โปรเจคของคุณจะไม่แสดงแบบสาธารณะอีกต่อไป คุณต้องการขอรับเงินใช่หรือไม่ ?',
-                   icon: 'warning',
-                   showCancelButton: true,
-                   confirmButtonColor: '#3085d6',
-                   cancelButtonColor: '#d33',
-                   confirmButtonText: 'Comfirm',
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                if(money < 100) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สามารถดำเนินการได้ !',
+                        text: 'คุณต้องมียอดเงินขั้นต่ำ 100 บาท ถึงจะสามารถถอนเงินได้',
+                        width: 700,
+                        timer: 5000
+                    })
+                } else {
+                    Swal.fire({
+                       title: 'Are you sure ?',
+                       text: 'หากคุณขอรับเงินโดเนท โปรเจคของคุณจะไม่แสดงแบบสาธารณะอีกต่อไป คุณต้องการขอรับเงินใช่หรือไม่ ?',
+                       icon: 'warning',
+                       width: 700,
+                       showCancelButton: true,
+                       confirmButtonColor: '#3085d6',
+                       cancelButtonColor: '#d33',
+                       confirmButtonText: 'Comfirm',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
 
-                        $.ajax({
-                            url: 'get_data_project.php',
-                            contentType: 'application/json',
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                            success: function (response) {
+                            $.ajax({
+                                url: 'get_data_all_project.php',
+                                contentType: 'application/json',
+                                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                success: function (response) {
 
-                                for(i=0; i<response.length; i++) {
-                                    if(proj_id == response[i].proj_id) {
-                                        $.ajax({
-                                            url: "insert_request_money.php",
-                                            type: 'POST',
-                                            data: {
-                                               u_id : sessionStorage.getItem("u_id"),
-                                               proj_id : proj_id,
-                                               proj_repacc : response[i].proj_repacc,
-                                               proj_money : response[i].proj_money
-                                            },
-                                            cache: false,
-                                            success: function (data) {
+                                    for(i=0; i<response.length; i++) {
+                                        if(proj_id == response[i].proj_id) {
+                                            $.ajax({
+                                                url: "insert_request_money.php",
+                                                type: 'POST',
+                                                data: {
+                                                   u_id : sessionStorage.getItem("u_id"),
+                                                   proj_id : proj_id,
+                                                   proj_repacc : response[i].proj_repacc,
+                                                   proj_money : response[i].proj_money
+                                                },
+                                                cache: false,
+                                                success: function (data) {
 
-                                                Swal.fire({
-                                                    icon: 'success',
-                                                    title: 'ดำเนินการเสร็จสิ้น',
-                                                    text: 'ส่งการร้องขอเรียบร้อยแล้ว โปรดรอแอดมินอนุมัติและทำการโอนเงินภายใน 1-3 วันทำการ',
-                                                    width: 600,
-                                                    timer: 5000
-                                                })
-                                                
-                                                console.log(data)
-                                            },
-                                            error: function (error) {
-                                                console.log("error is " + error);
-                                            }
-                                        });
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'ดำเนินการเสร็จสิ้น',
+                                                        text: 'ส่งการร้องขอเรียบร้อยแล้ว โปรดรอแอดมินอนุมัติและทำการโอนเงินภายใน 1-3 วันทำการ',
+                                                        width: 600,
+                                                        timer: 5000
+                                                    })
+
+                                                    $("#btnEndProject").html('<i style="font-size: 25px;" class="fas fa-clock"></i>\xa0\xa0 รอการโอนจ่าย....')
+                                                    $("#btnEndProject").attr("disabled", "true")
+                                                    
+                                                },
+                                                error: function (error) {
+                                                    console.log("error is " + error);
+                                                }
+                                            });
+                                        }
                                     }
+                                },
+                                error: function (error) {
+                                    console.log(error);
                                 }
-                            },
-                            error: function (error) {
-                                console.log(error);
-                            }
-                        });
-                    }
-                })
+                            });
+                        }
+                    })
+                }
             });
 
 			$("#menu-logout").click(function () {

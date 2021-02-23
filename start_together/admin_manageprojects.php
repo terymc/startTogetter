@@ -89,6 +89,12 @@
                                 <span>Request Money</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="admin_manageDonateHistory.php">
+                               	<i class="fa fa-donate"></i>
+                                <span>Donate History</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <!-- sidebar-menu  -->
@@ -123,6 +129,7 @@
 								  data-toolbar="#toolbar"
 	                              data-search="true"
 	                              data-card-view="true"
+	                              data-show-export="true"
 	                              data-show-columns-toggle-all="true"
 	                              data-show-columns="true"
 	                              data-page-list="[5, 10, 20, 100]"
@@ -239,7 +246,11 @@
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
     <!-------------------------------------------------------------------------------------------------------------------------------------->
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/key-events/bootstrap-table-key-events.min.js"></script>
-     <!-------------------------------------------------------------------------------------------------------------------------------------->
+    <!-------------------------------------------------------------------------------------------------------------------------------------->
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <!-------------------------------------------------------------------------------------------------------------------------------------->
+    <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <!-------------------------------------------------------------------------------------------------------------------------------------->
 
 
     <script type="text/javascript">
@@ -253,22 +264,12 @@
         }
 
        window.operateEvents = {
-       		'click .edit': function (e, value, row, index) {
-       			$("#modalMemberEdit").modal('show');
-       			$("#inputID").val(row.u_id);
-       			$("#inputFirstName").val(row.u_firstname);
-       			$("#inputLastName").val(row.u_lastname);
-       			$("#inputEmail").val(row.u_email);
-       			$("#inputBirthDay").val(row.u_birthday);
-       			$("#inputUsername").val(row.u_username);
-       			$("#inputPassword").val(row.u_password);
-        	},
 
             'click .remove': function (e, value, row, index) {
 
                Swal.fire({
 	               title: 'Are you sure ?',
-	               text: 'คุณต้องการลบข้อมูลสมาชิกท่านนี้ ใช่หรือไม่ ?',
+	               text: 'คุณต้องการลบข้อมูลโปรเจคนี้ ใช่หรือไม่ ?',
 	               icon: 'warning',
 	               showCancelButton: true,
 	               confirmButtonColor: '#3085d6',
@@ -277,7 +278,7 @@
 	           }).then((result) => {
 		           	if (result.isConfirmed) {
 	                    $.ajax({
-							url: "delete_member.php",
+							url: "delete_projects.php",
 							type: 'GET',
 							data: {proj_id : row.proj_id},
 							cache: false,
@@ -299,15 +300,6 @@
         	}
     	}
 
-    	function checkForm(){
-	        if($("#inputFirstName").val().length > 0 && $("#inputLastName").val().length > 0 && $("#inputEmail").val().length > 0 &&
-	        	$("#inputBirthDay").val().length > 0 && $("#inputUsername").val().length > 0 && $("#inputPassword").val().length > 0){
-	          	$("#btn-save").attr("disabled", false);
-	        }
-	        else {
-	          	$("#btn-save").attr("disabled", true);
-	        }
-	    }
 
 	    $(document).ready(function () {
 
@@ -317,82 +309,6 @@
 
 		    $("#show-sidebar").click(function () {
 		        $(".page-wrapper").addClass("toggled");
-		    });
-
-		    $("#modalMemberEditClose").click(function () {
-	        	$("#modalMemberEdit").modal('hide');
-	        });
-
-		    $("#btn-save").click(function () {
-		    	if($("#inputFirstName").val() == "" || $("#inputLastName").val() == "" || $("#inputEmail").val() == "" ||
-		            $("#inputBirthDay").val() == "" || $("#inputUsername").val() == "" || $("#inputPassword").val() == "") {
-
-		        	Swal.fire({
-		                icon: 'error',
-		                title: 'ไม่สามารถลงทะเบียนได้',
-		                text: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-		                timer: 5000
-		            })
-		        }
-		        else {
-		        	var id = $("#inputID").val();
-		        	var firstname = $("#inputFirstName").val();
-		            var lastname = $("#inputLastName").val();
-		            var birthday = $("#inputBirthDay").val();
-		            var email = $("#inputEmail").val();
-		            var username = $("#inputUsername").val();
-		            var password = $("#inputPassword").val();
-		            var role = "member";
-
-		            Swal.fire({
-		               title: 'Are you sure ?',
-		               text: 'คุณต้องกาแก้ไขข้อมูลสมาชิกท่านนี้ ใช่หรือไม่ ?',
-		               icon: 'warning',
-		               showCancelButton: true,
-		               confirmButtonColor: '#3085d6',
-		               cancelButtonColor: '#d33',
-		               confirmButtonText: 'Comfirm',
-		           	}).then((result) => {
-			           	if (result.isConfirmed) {
-		                    $.ajax({
-								url: "update_member.php",
-								type: 'POST',
-								data: {
-									u_id : id,
-									u_firstname : firstname,
-		                            u_lastname : lastname,
-		                            u_birthday : birthday,
-		                            u_email : email,
-		                            u_username : username,
-		                            u_password : password,
-		                            u_role : role
-								},
-								cache: false,
-								success: function (data) {
-									$("#modalMemberEdit").modal('hide');
-			                        $("#inputFirstName").val("");
-			                        $("#inputLastName").val("");
-			                        $("#inputBirthDay").val("");
-			                        $("#inputEmail").val("");
-			                        $("#inputUsername").val("");
-			                        $("#inputPassword").val("");
-			                        $("#btn-save").attr("disabled", false);
-
-									Swal.fire({
-										icon: 'success',
-										title: 'Success !',
-										text: 'แก้ไขข้อมูลสำเร็จแล้ว',
-										timer: 5000
-									})
-									$table.bootstrapTable('refreshOptions', {url: 'get_data_member.php'})
-								},
-								error: function (error) {
-									console.log("error is " + error);
-								}
-							});
-		                }
-		        	})
-		        }
 		    });
 
 		    $("#btn-logout").click(function () {

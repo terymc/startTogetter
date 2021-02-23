@@ -176,7 +176,7 @@
     			<button type="button" id="btnCreateProject" class="btn btn-primary mb-2" 
     				style="width: 190px; height: 50px; border-radius: 3px; margin-top: 20px;">
 
-    				สร้างโปรเจค &nbsp;&nbsp;<i class="fa fa-plus-circle"></i>
+    				แก้ไขโปรเจค &nbsp;&nbsp;<i class="fa fa-edit"></i>
                 </button>
     		</td>
     	</tr>

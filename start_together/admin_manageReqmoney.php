@@ -42,6 +42,11 @@
             border-width: 8px;
             border-color: #262e41;
         }
+
+        #btn-confirm {
+            width: 150px;
+            height: 40px;
+        }
     </style>
 
     <title>Admin</title>
@@ -95,6 +100,12 @@
                                 <span>Request Money</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="admin_manageDonateHistory.php">
+                                <i class="fa fa-donate"></i>
+                                <span>Donate History</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <!-- sidebar-menu  -->
@@ -127,6 +138,7 @@
               								  id="table"
               								  data-toggle="table"
               								  data-toolbar="#toolbar"
+                                data-show-export="true"
                                 data-show-columns-toggle-all="true"
                                 data-show-columns="true"
 	                              data-search="true"
@@ -142,7 +154,8 @@
               							      <th data-field="u_id" data-sortable="true">User ID</th>
               							      <th data-field="proj_id" data-sortable="true">Project Id</th>
               							      <th data-field="proj_repacc" data-sortable="true">Omise Rep</th>
-              							      <th data-field="proj_money" data-sortable="true">Project Money</th>							     
+              							      <th data-field="proj_money" data-sortable="true">Project Money</th>
+                                  <th data-field="rm_status" data-sortable="true" data-formatter="statusFormatter">Status</th>				     
               							      <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents"></th>
               							    </tr>
               							  </thead>
@@ -277,20 +290,39 @@
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
     <!-------------------------------------------------------------------------------------------------------------------------------------->
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/key-events/bootstrap-table-key-events.min.js"></script>
-     <!-------------------------------------------------------------------------------------------------------------------------------------->
+    <!-------------------------------------------------------------------------------------------------------------------------------------->
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <!-------------------------------------------------------------------------------------------------------------------------------------->
+    <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <!-------------------------------------------------------------------------------------------------------------------------------------->
 
 
     <script type="text/javascript">
 
     	var $table = $("#table");
 
+      function statusFormatter(value, row, index) {
+        if(value == 'รอการโอนจ่าย') {
+          return '<div style="color: red;">'+ value +'</div>';
+        } else {
+          return '<div style="color: green;">'+ value +'</div>';
+        }
+      }
+
     	function operateFormatter(value, row, index) {
-          return [ 
-               
+
+        if(row.rm_status == 'รอการโอนจ่าย') {
+          return [    
                '<a class="remove" href="javascript:void(0)" title="Remove"><i style="font-size: 25px; color: #dc3545;" class="fas fa-trash"></i></a>' +'\xa0\xa0\xa0\xa0\xa0\xa0\xa0',
                 '<a class="confirmMoney" href="javascript:void(0)" title="confirmMoney"><i style="font-size: 25px; color: #00CC33;" class="fas fa-check-circle"></i></a>'
             ].join('')
         }
+        else {
+          return [    
+               '<a class="remove" href="javascript:void(0)" title="Remove"><i style="font-size: 25px; color: #dc3545;" class="fas fa-trash"></i></a>'
+            ].join('')
+        }
+      }
 
        window.operateEvents = {
        		'click .confirmMoney': function (e, value, row, index) {
@@ -299,29 +331,49 @@
        			$("#proj_id").val(row.proj_id);
        			$("#omiseRep").val(row.proj_repacc);
        			$("#inputMoney").val(row.proj_money);
-            //alert(row.proj_repacc)
 
             $("#btn-confirm").click(function(){
+              Swal.fire({
+                 title: 'Are you sure ?',
+                 text: 'ยืนยันการโอน ?',
+                 icon: 'question',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Comfirm',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                   $.ajax({
+                    url:'transfer.php',
+                    type: 'POST',
+                    data:{
+                      omiseToken : $("#omiseToken").val(),
+                      omiseSource : $("#omiseSource").val(),
+                      btnMoney : $("#inputMoney").val(),
+                      repAcc : $("#omiseRep").val(),
+                      proj_id: $("#proj_id").val(),
+                    },
+                    success:function(data){
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'ดำเนินการเสร็จสิ้น',
+                          text: 'ทำการโอเงินสำเร็จแล้ว',
+                          timer: 5000
+                      })
 
-              $.ajax({
-                url:'transfer.php',
-                type: 'POST',
-                data:{
-                  omiseToken : $("#omiseToken").val(),
-                  omiseSource : $("#omiseSource").val(),
-                  btnMoney : $("#inputMoney").val(),
-                  repAcc : $("#omiseRep").val(),
-                  proj_id: $("#proj_id").val(),
-                },
-                success:function(data){
-                  console.log(data+" Rep is "+ $("#omiseRep").val());
-                },
-                error:function(error){
-                  console.log("error is "+error);
+                      $table.bootstrapTable('refresh')
+
+                      console.log(data)
+
+                      $("#modalTransfer").modal('hide');
+                    },
+                    error:function(error){
+                      console.log("error is "+error);
+                    }
+                  });
                 }
-              });
-            });
-            
+              })
+            });           
         	},
 
             'click .remove': function (e, value, row, index) {
@@ -334,7 +386,7 @@
 	               confirmButtonColor: '#3085d6',
 	               cancelButtonColor: '#d33',
 	               confirmButtonText: 'Comfirm',
-	           }).then((result) => {
+	             }).then((result) => {
 		           	if (result.isConfirmed) {
 	                    $.ajax({
           							url: "delete_reqMoney.php",
