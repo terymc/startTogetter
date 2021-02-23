@@ -161,7 +161,7 @@
                 				<form class="news_submit_form">
 	                              	<fieldset>
 	                                 	<div class="field">
-	                                    	<button style="margin-left: 40px;" type="button">Search<i style="margin-left: 10px; font-size: 20px;" class="fas fa-search"></i></button>
+	                                    	<button id="btnGoToSearch" style="margin-left: 40px;" type="button">Search<i style="margin-left: 10px; font-size: 20px;" class="fas fa-search"></i></button>
 	                                 	</div>
 	                              	</fieldset>
 	                            </form>
@@ -386,6 +386,10 @@
   				$('#sidebar, #content').toggleClass('active');
   				$('.collapse.in').toggleClass('in');
   				$('a[aria-expanded=true]').attr('aria-expanded', 'false');
+        });
+
+        $('#btnGoToSearch').on('click', function() {
+          window.location = "project_search.php"
         });
 
 			$("#menu-logout").click(function () {

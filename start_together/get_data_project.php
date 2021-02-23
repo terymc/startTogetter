@@ -6,9 +6,10 @@ function get_data() {
 	
 	$query = "SELECT projects.proj_id, projects.u_id, user.u_firstname, user.u_lastname, projects.proj_title,
 					 projects.proj_desc, projects.proj_goal, projects.proj_bracker, projects.proj_money, 
-					 projects.proj_type, projects.proj_account, projects.proj_repacc 
+					 projects.proj_type, projects.proj_account, projects.proj_repacc, projects.proj_status 
 					 FROM projects 
-					 INNER JOIN user ON projects.u_id = user.u_id";
+					 INNER JOIN user ON projects.u_id = user.u_id
+					 WHERE projects.proj_status = 'active'";
 
 	$result = mysqli_query($connect, $query);
 
@@ -28,6 +29,7 @@ function get_data() {
 			'proj_type'			=>	$row["proj_type"],
 			'proj_account'		=>	$row["proj_account"],
 			'proj_repacc'		=>	$row["proj_repacc"],
+			'proj_status'		=>	$row["proj_status"],
 		);
 	}
 

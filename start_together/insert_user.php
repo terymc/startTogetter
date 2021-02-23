@@ -15,5 +15,5 @@
 
 	mysqli_query($connect, $query);
 
-	$conn -> close();
+	$connect -> close();
 ?>

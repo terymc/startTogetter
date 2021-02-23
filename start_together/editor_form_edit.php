@@ -62,6 +62,8 @@
 </head>
 <body style="background-image: url('lib/member_profile/images/member_profile_bg.png');">
 	
+	<input type="hidden" id="proj_id" value="<?php echo $_GET['proj_id']?>"/>
+	<input type="hidden" id="proj_repacc" value=""/>
 	<div class="wrapper">
 	    <nav id="sidebar" style="border-color: black;">
 	        <div class="menu_section">
@@ -210,6 +212,30 @@
 
 	<script>
 
+		var proj_id = $("#proj_id").val();
+
+		$.ajax({
+        	url: 'get_data_project.php',
+        	contentType: 'application/json',
+        	headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        	success: function (response) {
+
+            	for(i=0; i<response.length; i++) {
+                	if(proj_id == response[i].proj_id) {
+                		$("#inputGoal").val(response[i].proj_goal)
+						$("#inputAccount").val(response[i].proj_account)
+						$("#inputTitle").val(response[i].proj_title)
+						$("#listType").val(response[i].proj_type)
+						$("#proj_repacc").val(response[i].proj_repacc)
+						CKEDITOR.instances.Artticle_editor.setData(response[i].proj_desc)
+                	}
+                }
+            },
+            error: function (error) {
+            	console.log(error);
+        	}
+      	});
+
 		CKEDITOR.replace( 'Artticle_editor', {
         	height: 300
     	});
@@ -266,8 +292,8 @@
           		} else {
           			Swal.fire({
 		               	title: 'Are you sure ?',
-		               	text: 'คุณต้องการสร้างโปรเจค ?',
-		               	icon: 'question',
+		               	text: 'คุณต้องแก้ไขโปรเจค ?',
+		               	icon: 'warning',
 		               	showCancelButton: true,
 		               	confirmButtonColor: '#3085d6',
 		               	cancelButtonColor: '#d33',
@@ -275,9 +301,10 @@
 		           	}).then((result) => {
 			           	if (result.isConfirmed) {
 			           		$.ajax({
-		                        url: "insert_project.php",
+		                        url: "update_project.php",
 		                        type: 'POST',
 		                        data: {
+		                        	proj_id : $("#proj_id").val(),
 		                            u_id : sessionStorage.getItem("u_id"),
 		                            u_firstname : sessionStorage.getItem("u_firstname"),
 		                            u_lastname : sessionStorage.getItem("u_lastname"),
@@ -287,11 +314,11 @@
 		                            proj_title : $("#inputTitle").val(),
 		                            proj_type : $("#listType").val(),
 		                            proj_account : $("#inputAccount").val(),
+		                            proj_repacc : $("#proj_repacc").val(),
 		                        },
 		                        cache: false,
 		                        success: function (data) {
-
-		                          	window.location = "project_detail.php?proj_id=" + data
+		                          	window.location = "project_edit.php?proj_id=" + data
 		                        },
 		                        error: function (error) {
 		                          	console.log("error is " + error);

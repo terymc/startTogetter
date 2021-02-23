@@ -29,6 +29,13 @@
           width: 200px;
           height: 45px;
         }
+
+        #title_line {
+            margin-top: 30px; 
+            margin-bottom: 20px;
+            border-width: 8px;
+            border-color: #262e41;
+        }
     </style>
 
     <title>Admin</title>
@@ -72,8 +79,14 @@
                         </li>
                         <li>
                             <a href="./admin_manageprojects.php">
-                                <i class="fa fa-user"></i>
+                                <i class="fas fa-file-invoice-dollar"></i>
                                 <span>Projects</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="admin_manageReqmoney.php">
+                               	<i class="fas fa-search-dollar"></i>
+                                <span>Request Money</span>
                             </a>
                         </li>
                     </ul>
@@ -97,8 +110,8 @@
                     <tr>
                         <td colspan="2">
                             <br>
-                            <h2 style="margin-left: 20px;"><b>Member</b>&nbsp;&nbsp;<i class="fas fa-users"></i></h2>
-                            <hr style="margin-top: 30px;" />
+                            <h2 style="margin-left: 20px;"><b>Project</b>&nbsp;&nbsp;<i class="fas fa-file-invoice-dollar"></i></h2>
+                            <hr id="title_line" style="margin-top: 30px;" />
                         </td>
                     </tr>
                     <tr>
@@ -109,9 +122,9 @@
 								  data-toggle="table"
 								  data-toolbar="#toolbar"
 	                              data-search="true"
+	                              data-card-view="true"
 	                              data-show-columns-toggle-all="true"
 	                              data-show-columns="true"
-	                              data-show-toggle="true"
 	                              data-page-list="[5, 10, 20, 100]"
 	                              data-pagination="true"
 	                              data-pagination-pre-text="Previous"
@@ -120,15 +133,16 @@
 								  data-url="http://localhost:3000/projects">
 							  <thead class="thead-dark">
 							    <tr>
-							      <th data-width="100" data-field="proj_id" data-sortable="true">#</th>
-							      <th data-width="100" data-field="u_id" data-sortable="true">User Id</th>
-							      <th data-width="200" data-field="proj_title" data-sortable="true">Title</th>
-							      <th data-width="150" data-field="proj_goal" data-sortable="true">Goal</th>
-							      <th data-width="300" data-field="proj_money" data-sortable="true">Money</th>
-							      <th data-width="200" data-field="proj_type" data-sortable="true">Type</th>
-							      <th data-width="200" data-field="proj_account" data-sortable="true">Account</th>
-							      <th data-width="200" data-field="proj_repacc" data-sortable="true">Omise rep</th>
-							      <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents">Action</th>
+							      <th data-field="proj_id" data-sortable="true">#</th>
+							      <th data-field="u_id" data-sortable="true">User Id</th>
+							      <th data-field="proj_title" data-sortable="true">Title</th>
+							      <th data-field="proj_goal" data-search-formatter="false" data-sortable="true">Goal</th>
+							      <th data-field="proj_money" data-search-formatter="false" data-sortable="true">Money</th>
+							      <th data-field="proj_type" data-sortable="true">Type</th>
+							      <th data-field="proj_account" data-search-formatter="false" data-sortable="true">Account</th>
+							      <th data-field="proj_repacc" data-search-formatter="false" data-sortable="true">Omise rep</th>
+							      <th data-field="proj_status" data-sortable="true">Status</th>
+							      <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents"></th>
 							    </tr>
 							  </thead>
 							</table>

@@ -138,10 +138,10 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th data-field="proj_title" data-formatter="titleFormatter"></th>
-                                <th data-field="u_firstname" data-formatter="nameFormatter"></th>
-                                <th data-field="proj_goal" data-formatter="goalFormatter"></th>
-                                <th data-field="proj_bracker" data-formatter="brackerFormatter"></th>
-                                <th data-field="proj_money" data-formatter="moneyFormatter"></th>
+                                <th data-field="u_firstname" data-formatter="nameFormatter" data-search-formatter="false"></th>
+                                <th data-field="proj_goal" data-formatter="goalFormatter" data-search-formatter="false"></th>
+                                <th data-field="proj_bracker" data-formatter="brackerFormatter" data-search-formatter="false"></th>
+                                <th data-field="proj_money" data-formatter="moneyFormatter" data-search-formatter="false"></th>
                                 <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents"></th>
                             </tr>
                         </thead>
@@ -232,7 +232,7 @@
 				$("#li_myProject").remove();
 				$("#userEdit").remove();
                 $("#btnCreateProject").remove();
-                $("#listType").css({"width": "170px", "height": "37px"});
+                $("#listType").css({"width": "170px", "height": "37px", "margin-left": "680px"});
 
 			} else if(sessionStorage.getItem("u_id") == "") {
 

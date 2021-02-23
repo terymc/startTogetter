@@ -170,7 +170,7 @@
         var $table = $("#table");
 
         function titleFormatter(value, row, index) {
-            return "<a style='color: #0a5a97;' href='project_detail.php?proj_id=" + row.proj_id + "'><h2><b>" + value + "</a></h2></a>";
+            return "<a style='color: #0a5a97;' href='project_edit.php?proj_id=" + row.proj_id + "'><h2><b>" + value + "</a></h2></a>";
         }
 
 
@@ -198,7 +198,7 @@
 
        window.operateEvents = {
        		'click #detail': function (e, value, row, index) {
-                window.location = "project_detail.php?proj_id=" + row.proj_id
+                window.location = "project_edit.php?proj_id=" + row.proj_id
         	},
     	}
 

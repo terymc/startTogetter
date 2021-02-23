@@ -30,6 +30,12 @@
           height: 45px;
         }
 
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
         #title_line {
             margin-top: 30px; 
             margin-bottom: 20px;
@@ -77,7 +83,7 @@
                                 <span>Member</span>
                             </a>
                         </li>
-                        <li>
+                         <li>
                             <a href="./admin_manageprojects.php">
                                 <i class="fas fa-file-invoice-dollar"></i>
                                 <span>Projects</span>
@@ -110,7 +116,7 @@
                     <tr>
                         <td colspan="2">
                             <br>
-                            <h2 style="margin-left: 20px;"><b>Member</b>&nbsp;&nbsp;<i class="fas fa-users"></i></h2>
+                            <h2 style="margin-left: 20px;"><b>Request Money</b>&nbsp;&nbsp;<i class="fas fa-search-dollar"></i></h2>
                             <hr id="title_line" style="margin-top: 30px;" />
                         </td>
                     </tr>
@@ -118,31 +124,29 @@
                         <td colspan="2">
                             <div id="toolbar"></div>
                             <table
-								  id="table"
-								  data-toggle="table"
-								  data-toolbar="#toolbar"
+              								  id="table"
+              								  data-toggle="table"
+              								  data-toolbar="#toolbar"
+                                data-show-columns-toggle-all="true"
+                                data-show-columns="true"
 	                              data-search="true"
-	                              data-show-columns-toggle-all="true"
-	                              data-show-columns="true"
-	                              data-show-toggle="true"
+                                data-card-view="true"
 	                              data-page-list="[5, 10, 20, 100]"
 	                              data-pagination="true"
 	                              data-pagination-pre-text="Previous"
 	                              data-pagination-next-text="Next"
 	                              data-page-size="5"
-								  data-url="get_data_member.php">
-							  <thead class="thead-dark">
-							    <tr>
-							      <th data-width="100" data-field="u_id" data-sortable="true">#</th>
-							      <th data-width="200" data-field="u_firstname" data-sortable="true">Firstname</th>
-							      <th data-width="200" data-field="u_lastname" data-sortable="true">Lastname</th>
-							      <th data-width="150" data-field="u_birthday" data-sortable="true">Birthday</th>
-							      <th data-width="300" data-field="u_email" data-sortable="true">Email</th>
-							      <th data-width="200" data-field="u_username" data-sortable="true">Username</th>
-							      <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents">Action</th>
-							    </tr>
-							  </thead>
-							</table>
+              								  data-url="http://localhost:3333/requestproj">
+              							  <thead class="thead-dark">
+              							    <tr>
+              							      <th data-field="u_id" data-sortable="true">User ID</th>
+              							      <th data-field="proj_id" data-sortable="true">Project Id</th>
+              							      <th data-field="proj_repacc" data-sortable="true">Omise Rep</th>
+              							      <th data-field="proj_money" data-sortable="true">Project Money</th>							     
+              							      <th data-align="center" data-field="operate" data-search-formatter="false" data-formatter="operateFormatter" data-events="operateEvents"></th>
+              							    </tr>
+              							  </thead>
+              							</table>
                         </td>
                     </tr>
                 </table>
@@ -220,6 +224,43 @@
     	</div>
     </div>
 
+    <!----Modal Money---->
+    <div class="modal fade" id="modalTransfer" tabindex="-1" role="dialog" aria-hidden="true">
+      	<div class="modal-dialog" role="document">
+        	<div class="modal-content">
+          		<div class="modal-header">
+	            	<h5 class="modal-title">โอนเงินให้ลูกค้า</h5>
+	            	<button type="button" class="close" id="modalTransferClose" aria-label="Close">
+	              		<span aria-hidden="true">&times;</span>
+	            	</button>
+	          	</div>
+	          	<div class="modal-body">
+	            	<form>
+	              		<table align="center">
+	                		<tr style="height: 90px">
+	                  		<td>
+	                    		<div class="form-row">
+	                      		<div class="col">
+	                        		<label for="inputFirstName">จำนวนเงินที่โอนเข้าบัญชี</label>
+	                        		<input type="hidden" id="proj_id">
+	                        		<input type="hidden" id="omiseToken">
+             									<input type="hidden" id="omiseSource">
+             									<input type="hidden" id="omiseRep">
+	                        		<input type="number" id="inputMoney" class="form-control" placeholder="กรอกจำนวนที่จะโอนให้ลูกค้า (บาท)">
+	                      		</div>
+                          </div>
+                        </td>
+                      </tr>
+	              		</table>
+	            	</form>
+	          	</div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-primary" id="btn-confirm">ยืนยันการโอน</button><br />
+              </div>
+        	</div>
+    	</div>
+    </div>
+
     <!-------------------------------------------------------------------------------------------------------------------------------------->
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <!-------------------------------------------------------------------------------------------------------------------------------------->
@@ -245,21 +286,42 @@
 
     	function operateFormatter(value, row, index) {
           return [ 
-               '<a class="edit" href="javascript:void(0)" title="Edit"><i style="font-size: 22px; color: #ffc107;" class="fas fa-edit"></i></a>' + '\xa0\xa0\xa0\xa0\xa0',
-               '<a class="remove" href="javascript:void(0)" title="Remove"><i style="font-size: 25px; color: #dc3545;" class="fas fa-trash"></i></a>'
+               
+               '<a class="remove" href="javascript:void(0)" title="Remove"><i style="font-size: 25px; color: #dc3545;" class="fas fa-trash"></i></a>' +'\xa0\xa0\xa0\xa0\xa0\xa0\xa0',
+                '<a class="confirmMoney" href="javascript:void(0)" title="confirmMoney"><i style="font-size: 25px; color: #00CC33;" class="fas fa-check-circle"></i></a>'
             ].join('')
         }
 
        window.operateEvents = {
-       		'click .edit': function (e, value, row, index) {
-       			$("#modalMemberEdit").modal('show');
-       			$("#inputID").val(row.u_id);
-       			$("#inputFirstName").val(row.u_firstname);
-       			$("#inputLastName").val(row.u_lastname);
-       			$("#inputEmail").val(row.u_email);
-       			$("#inputBirthDay").val(row.u_birthday);
-       			$("#inputUsername").val(row.u_username);
-       			$("#inputPassword").val(row.u_password);
+       		'click .confirmMoney': function (e, value, row, index) {
+
+       			$("#modalTransfer").modal('show');
+       			$("#proj_id").val(row.proj_id);
+       			$("#omiseRep").val(row.proj_repacc);
+       			$("#inputMoney").val(row.proj_money);
+            //alert(row.proj_repacc)
+
+            $("#btn-confirm").click(function(){
+
+              $.ajax({
+                url:'transfer.php',
+                type: 'POST',
+                data:{
+                  omiseToken : $("#omiseToken").val(),
+                  omiseSource : $("#omiseSource").val(),
+                  btnMoney : $("#inputMoney").val(),
+                  repAcc : $("#omiseRep").val(),
+                  proj_id: $("#proj_id").val(),
+                },
+                success:function(data){
+                  console.log(data+" Rep is "+ $("#omiseRep").val());
+                },
+                error:function(error){
+                  console.log("error is "+error);
+                }
+              });
+            });
+            
         	},
 
             'click .remove': function (e, value, row, index) {
@@ -275,23 +337,23 @@
 	           }).then((result) => {
 		           	if (result.isConfirmed) {
 	                    $.ajax({
-							url: "delete_member.php",
-							type: 'GET',
-							data: {u_id : row.u_id},
-							cache: false,
-							success: function (data) {
-								Swal.fire({
-								    icon: 'success',
-								    title: 'Success !',
-								    text: 'ลบข้อมูลสำเร็จแล้ว',
-								    timer: 5000
-								})
-								$table.bootstrapTable('refreshOptions', {url: 'get_data_member.php'})
-							},
-							error: function (error) {
-								console.log("error is " + error);
-							}
-						});
+          							url: "delete_reqMoney.php",
+          							type: 'GET',
+          							data: {rm_id : row.rm_id},
+          							cache: false,
+          							success: function (data) {
+          								Swal.fire({
+          								    icon: 'success',
+          								    title: 'Success !',
+          								    text: 'ลบข้อมูลสำเร็จแล้ว',
+          								    timer: 5000
+          								})
+          								$table.bootstrapTable('refreshOptions', {url: 'http://localhost:3333/requestproj'})
+          							},
+          							error: function (error) {
+          								console.log("error is " + error);
+          							}
+          						});
 	                }
 	        	})
         	}
@@ -310,16 +372,19 @@
 	    $(document).ready(function () {
 
 		    $("#close-sidebar").click(function () {
-		        $(".page-wrapper").removeClass("toggled");
+		      $(".page-wrapper").removeClass("toggled");
 		    });
 
 		    $("#show-sidebar").click(function () {
-		        $(".page-wrapper").addClass("toggled");
+		      $(".page-wrapper").addClass("toggled");
 		    });
 
-		    $("#modalMemberEditClose").click(function () {
-	        	$("#modalMemberEdit").modal('hide');
-	        });
+		    $("#modalTransferClose").click(function () {
+	        $("#modalTransfer").modal('hide');
+          $("#inputMoney").val("");
+	      });
+
+        
 
 		    $("#btn-save").click(function () {
 		    	if($("#inputFirstName").val() == "" || $("#inputLastName").val() == "" || $("#inputEmail").val() == "" ||
@@ -335,12 +400,12 @@
 		        else {
 		        	var id = $("#inputID").val();
 		        	var firstname = $("#inputFirstName").val();
-		            var lastname = $("#inputLastName").val();
-		            var birthday = $("#inputBirthDay").val();
-		            var email = $("#inputEmail").val();
-		            var username = $("#inputUsername").val();
-		            var password = $("#inputPassword").val();
-		            var role = "member";
+		          var lastname = $("#inputLastName").val();
+		          var birthday = $("#inputBirthDay").val();
+		          var email = $("#inputEmail").val();
+		          var username = $("#inputUsername").val();
+		          var password = $("#inputPassword").val();
+		          var role = "member";
 
 		            Swal.fire({
 		               title: 'Are you sure ?',

@@ -21,6 +21,7 @@
 
 
 
+
 	$recipient = OmiseRecipient::create(array(
 	  	'name' 			=> $u_firstname . ' ' . $u_lastname,
 	  	'description' 	=> 'บัญชีรับเงินโปรเจค',
@@ -38,8 +39,8 @@
 	$countrep = count($_recipient['data'])-1;
 
 	if(!empty($title)|| !empty($content)){
-		$sql = "INSERT INTO projects(u_id, proj_desc, proj_goal, proj_money, proj_title, proj_bracker, proj_account, proj_type, proj_repacc)
-			    VALUES('".$u_id."', '".$desc."', '".$goal."', 'null', '".$title."', 'null', '".$account."', '".$type."', '".$_recipient["data"]["".$countrep.""]["id"]."')";
+		$sql = "INSERT INTO projects(u_id, proj_desc, proj_goal, proj_money, proj_title, proj_bracker, proj_account, proj_type, proj_repacc, proj_status)
+			    VALUES('".$u_id."', '".$desc."', '".$goal."', 'null', '".$title."', 'null', '".$account."', '".$type."', '".$_recipient["data"]["".$countrep.""]["id"]."', 'active')";
 
 		$query = mysqli_query($connect, $sql);
 	}
@@ -53,5 +54,6 @@
 	}
 
 	print_r($currentRow);
+	
 
 ?>

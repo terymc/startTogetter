@@ -2,9 +2,9 @@
 
 	$connect = mysqli_connect("localhost", "root", "", "start_together_db");
 
-	$id = $_GET["proj_id"];
+	$id = $_GET["rm_id"];
 
-	$query = "DELETE FROM projects where proj_id = '".$id."'";
+	$query = "DELETE FROM request_money where rm_id = '".$id."'";
 
 	mysqli_query($connect, $query);
 

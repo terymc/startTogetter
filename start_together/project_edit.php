@@ -51,7 +51,7 @@
             -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
 
-        #btnDonate {
+        #btnEditProject, #btnEndProject {
             width: 200px;
             height: 50px;
         }
@@ -155,12 +155,19 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td width="600" align="right" id="content_btnDonate">
-
-                                    <button id="btnDonate" type="button" class="btn btn-primary">
-                                        <i style="font-size: 25px;" class="fas fa-donate"></i>
-                                        &nbsp;&nbsp;สนับสนุน
+                                <td width="500" align="right">
+                                    <button style="margin-right: 10px;" id="btnEditProject" type="button" class="btn btn-warning">
+                                        <i style="font-size: 25px;" class="fas fa-edit"></i>
+                                        &nbsp;&nbsp;แก้ไขโปรเจค
                                     </button>
+
+                                </td>
+                                <td align="right">
+                                    <button id="btnEndProject" type="button" class="btn btn-info">
+                                        <i style="font-size: 25px;" class="fas fa-dollar-sign"></i>
+                                        &nbsp;&nbsp;ขอรับเงินโดเนท
+                                    </button>
+                                    
                                 </td>
                             </tr>
                         </table>
@@ -170,41 +177,6 @@
     		</td>
     	</tr>
     </table>
-
-    <div class="modal fade" id="modalAddMoney" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" id="modalAddMoneyClose" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <table align="center">
-                            <tr style="height: 90px">
-                                <td>
-                                    <div class="form-row">                                        
-                                        <div class="col">
-                                            <form>
-                                                <label for="inputMoney" id="moneyLabel">จำนวนเงิน</label>
-                                                <input type="number" id="inputMoney" name="inputMoney" class="form-control" placeholder="กรอกจำนวนเงิน (บาท)">
-                                                <input type="hidden" id="omiseToken">
-                                                <input type="hidden" id="omiseSource">
-                                            </form>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>                          
-                        </table>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-primary" id="btn-addmoney">สนับสนุน</button><br />
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-------------------------------------------------------------------------------------------------------------------------------------->
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -325,11 +297,6 @@
 
 			}
 
-            $("#modalAddMoneyClose").click(function () {
-                $("#modalAddMoney").modal('hide');
-                $("#inputMoney").val("");
-            });
-
         	$('#sidebarCollapse').on('click', function() {
 
 				$('#sidebar, #content').toggleClass('active');
@@ -337,6 +304,67 @@
 				$('a[aria-expanded=true]').attr('aria-expanded', 'false');
 
           	});
+
+            $("#btnEditProject").click(function () {
+                window.location = "editor_form_edit.php?proj_id=" + $("#proj_id").val();
+            });
+
+            $("#btnEndProject").click(function () {
+                Swal.fire({
+                   title: 'Are you sure ?',
+                   text: 'หากคุณขอรับเงินโดเนท โปรเจคของคุณจะไม่แสดงแบบสาธารณะอีกต่อไป คุณต้องการขอรับเงินใช่หรือไม่ ?',
+                   icon: 'warning',
+                   showCancelButton: true,
+                   confirmButtonColor: '#3085d6',
+                   cancelButtonColor: '#d33',
+                   confirmButtonText: 'Comfirm',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            url: 'get_data_project.php',
+                            contentType: 'application/json',
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            success: function (response) {
+
+                                for(i=0; i<response.length; i++) {
+                                    if(proj_id == response[i].proj_id) {
+                                        $.ajax({
+                                            url: "insert_request_money.php",
+                                            type: 'POST',
+                                            data: {
+                                               u_id : sessionStorage.getItem("u_id"),
+                                               proj_id : proj_id,
+                                               proj_repacc : response[i].proj_repacc,
+                                               proj_money : response[i].proj_money
+                                            },
+                                            cache: false,
+                                            success: function (data) {
+
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'ดำเนินการเสร็จสิ้น',
+                                                    text: 'ส่งการร้องขอเรียบร้อยแล้ว โปรดรอแอดมินอนุมัติและทำการโอนเงินภายใน 1-3 วันทำการ',
+                                                    width: 600,
+                                                    timer: 5000
+                                                })
+                                                
+                                                console.log(data)
+                                            },
+                                            error: function (error) {
+                                                console.log("error is " + error);
+                                            }
+                                        });
+                                    }
+                                }
+                            },
+                            error: function (error) {
+                                console.log(error);
+                            }
+                        });
+                    }
+                })
+            });
 
 			$("#menu-logout").click(function () {
 
@@ -348,7 +376,7 @@
 	               confirmButtonColor: '#3085d6',
 	               cancelButtonColor: '#d33',
 	               confirmButtonText: 'Comfirm',
-	           }).then((result) => {
+	            }).then((result) => {
 		           	if (result.isConfirmed) {
 		           		sessionStorage.setItem("u_id", "");
 						sessionStorage.setItem("u_firstname", "");
@@ -364,143 +392,7 @@
 	        	})
 		    });
 
-            $('#btnDonate').click(function(){
-
-                $("#modalAddMoney").modal('show');
-
-                $("#btn-addmoney").click(function(){
-
-                    if($("#inputMoney").val().length == 0){
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ไม่สามารถดำเนินการได้',
-                            text: 'กรุณากรอกจำนวนเงิน',
-                            width: 600,
-                            timer: 5000
-                        })
-                    }
-                    else 
-
-                    OmiseCard.open({
-                      amount: $('#inputMoney').val()*100,
-                      currency: "THB",
-                      defaultPaymentMethod: "credit_card",
-                      frameLabel: 'สนับสนุนให้โปรเจคที่คุณชอบ',                      
-                    
-
-                      onCreateTokenSuccess: (nonce) => {
-                          if (nonce.startsWith("tokn_")) {
-
-                             $("#omiseToken").val(nonce);
-
-                          } else {
-
-                             $("#omiseSource").val(nonce);                              
-                          };
-                           $.ajax({
-                                url: "charge.php",
-                                type: "POST",
-                                data: 
-                                    {  
-                                       omiseToken : $("#omiseToken").val(),
-                                       omiseSource : $("#omiseSource").val(),
-                                       btnMoney : $("#inputMoney").val(),
-                                    },
-                                success: function(response) {
-                                    console.log(response);
-                                    $("#modalAddMoney").modal('hide');
-                                    
-                                    var x = $("#inputMoney").val()
-                                    var y = x * 3.65 / 100
-                                    var z = (x * 3.65 / 100) * 7 / 100
-                                    var ans = x - (y + z) + money4update
-
-                                    $.ajax({
-                                        url:'updateMoney.php',
-                                        type: "POST",
-                                        data:{
-                                            amount : ans.toFixed(2),
-                                            proj_id : $("#proj_id").val()
-                                        },
-                                        success:function(data){
-                                            $("#inputMoney").val("");
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'ดำเนินการสำเร็จ',
-                                                text: 'ขอบคุณที่ร่วมสนับสนุนโปรเจค',
-                                                width: 600,
-                                                timer: 5000
-                                            })
-
-                                            var proj_id = $("#proj_id").val();
-                                            var u_id = "";
-                                            var desc = "";
-                                            var bracker = "";
-                                            var money = "";
-                                            var goal = ""
-                                            var title = "";
-                                            var firstname = "";
-                                            var lastname = "";
-
-                                            $.ajax({
-                                                url: 'get_data_project.php',
-                                                contentType: 'application/json',
-                                                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                                                success: function (response) {
-                                                    for(i=0; i<response.length; i++) {
-                                                        if(proj_id == response[i].proj_id) {
-
-                                                            u_id = response[i].u_id;
-                                                            title = response[i].proj_title
-                                                            desc = response[i].proj_desc
-                                                            bracker = response[i].proj_bracker
-                                                            money = response[i].proj_money
-                                                            goal = response[i].proj_goal
-
-                                                            $.ajax({
-                                                                url: 'get_data_user.php',
-                                                                contentType: 'application/json',
-                                                                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                                                                success: function (response) {
-
-                                                                    for(i=0; i<response.length; i++) {
-                                                                        if(u_id == response[i].u_id) {
-
-                                                                            firstname = response[i].u_firstname
-                                                                            lastname = response[i].u_lastname
-                                                                            $("#card-title").html("<i id='iconTitle' class='fas fa-thumbtack'></i>\xa0\xa0\xa0\xa0<b id='textTitle'>" + title + "</b>")
-                                                                            $("#card-description").html("<p>เจ้าของโปรเจค\xa0:\xa0" + firstname + "\xa0\xa0" + lastname + "</p>" + desc)
-                                                                            $("#bracker").html("BRACKER : " + bracker)
-                                                                            $("#money").html("MONEY : " + money)
-                                                                            $("#goal").html("GOAL : " + goal)
-                                                                        }
-                                                                    }
-                                                                },
-                                                                error: function (error) {
-                                                                    console.log(error);
-                                                                }
-                                                            });
-                                                        }
-                                                    }
-                                                },
-                                                error: function (error) {
-                                                    console.log(error);
-                                                }
-                                            });
-                                        },
-                                        error:function(error){
-                                            console.log("error is"+error);
-                                        }
-                                    });
-                                },
-                                error: function(error) {
-                                    alert(error)
-                                }
-                            });
-                        }
-                    });
-                });      
-            });
+            
         });
     </script>
 </body>
